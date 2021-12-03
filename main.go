@@ -83,11 +83,8 @@ func useChannelsWithWaitGroup() {
 
 	for text := range msgs {
 
-		if strings.EqualFold(text, "") {
-			continue
-		}
-
 		fmt.Println(text)
+
 	}
 
 	fmt.Println("Final result: ", result)
@@ -155,6 +152,10 @@ func simultaneousProcess() {
 
 func runProcess(name string, total int, waitGroup *sync.WaitGroup, chn *chan string) {
 
+	if waitGroup != nil {
+		defer waitGroup.Done()
+	}
+
 	for i := 1; i <= total; i++ {
 
 		t := time.Duration(rand.Intn(255))
@@ -162,6 +163,7 @@ func runProcess(name string, total int, waitGroup *sync.WaitGroup, chn *chan str
 		time.Sleep(time.Millisecond * t)
 
 		mtx.Lock() // Prevenir race condition - bloquear alteração fora de fluxo
+
 		result++
 
 		text := fmt.Sprintf("Processo: %10s -> %04d -- %30s -- Partial result: %04d",
@@ -170,20 +172,18 @@ func runProcess(name string, total int, waitGroup *sync.WaitGroup, chn *chan str
 			time.Now().Format("2006-01-02 15:04:05.999999999"),
 			result)
 
+		mtx.Unlock() // Prevenir race condition - desbloquear alteração para que o fluxo flua normalmente
+
 		if chn == nil {
 			fmt.Println(text)
 		} else {
 			*chn <- text
 		}
 
-		mtx.Unlock() // Prevenir race condition - desbloquear alteração para que o fluxo flua normalmente
 	}
 
 	if chn != nil {
 		*chn <- ""
 	}
 
-	if waitGroup != nil {
-		waitGroup.Done()
-	}
 }
