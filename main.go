@@ -44,8 +44,31 @@ func main() {
 	// -----------------------------------------
 
 	// Channel with waitgroup
-	useChannelsWithWaitGroup()
+	// useChannelsWithWaitGroup()
 
+	// Semáforo
+	// semaphore()
+
+}
+
+func semaphore() {
+
+	msg := make(chan string)
+	ok := make(chan bool)
+
+	go runProcess("P1", 20, nil, &msg, &ok)
+
+	go runProcess("P2", 40, nil, &msg, &ok)
+
+	go func() {
+		<-ok
+		<-ok
+		close(msg)
+	}()
+
+	for text := range msg {
+		fmt.Println(text)
+	}
 }
 
 func useChannelsWithWaitGroup() {
@@ -56,30 +79,35 @@ func useChannelsWithWaitGroup() {
 
 	wtg.Add(9)
 
-	go runProcess("P1", 20, &wtg, &msgs)
+	go runProcess("P1", 20, &wtg, &msgs, nil)
 
-	go runProcess("P2", 30, &wtg, &msgs)
+	go runProcess("P2", 30, &wtg, &msgs, nil)
 
-	go runProcess("P3", 40, &wtg, &msgs)
+	go runProcess("P3", 40, &wtg, &msgs, nil)
 
-	go runProcess("P4", 50, &wtg, &msgs)
+	go runProcess("P4", 50, &wtg, &msgs, nil)
 
-	go runProcess("P5", 60, &wtg, &msgs)
+	go runProcess("P5", 60, &wtg, &msgs, nil)
 
-	go runProcess("P6", 70, &wtg, &msgs)
+	go runProcess("P6", 70, &wtg, &msgs, nil)
 
-	go runProcess("P7", 80, &wtg, &msgs)
+	go runProcess("P7", 80, &wtg, &msgs, nil)
 
-	go runProcess("P8", 90, &wtg, &msgs)
+	go runProcess("P8", 90, &wtg, &msgs, nil)
 
-	go runProcess("P9", 100, &wtg, &msgs)
+	go runProcess("P9", 100, &wtg, &msgs, nil)
 
-	go func(wait sync.WaitGroup, chn chan string) {
+	go func(wait *sync.WaitGroup, chn *chan string) {
 
-		wait.Wait()
-		close(chn)
+		if wait != nil {
+			wait.Wait()
+		}
 
-	}(wtg, msgs)
+		if chn != nil {
+			close(*chn)
+		}
+
+	}(&wtg, &msgs)
 
 	for text := range msgs {
 
@@ -96,21 +124,26 @@ func useChannels() {
 	// make consegue, trabalhar apenas com 3 tipos: maps, slices e chan(channel)
 
 	msg := make(chan string)
+	finish := make(chan bool)
 
-	go runProcess("P1", 20, nil, &msg)
+	go runProcess("P1", 20, nil, &msg, &finish)
+
+	go func() {
+		<-finish
+		close(msg)
+	}()
 
 	for {
 
 		text := <-msg
 
+		fmt.Println(text)
+
 		if strings.EqualFold(text, "") {
 			break
 		}
 
-		fmt.Println(text)
 	}
-
-	close(msg)
 
 }
 
@@ -118,8 +151,8 @@ func useMutexToPreventRaceCondition() {
 
 	// Verificar race condition: go run -race main.go
 
-	go runProcess("P1", 20, nil, nil)
-	go runProcess("P2", 20, nil, nil)
+	go runProcess("P1", 20, nil, nil, nil)
+	go runProcess("P2", 20, nil, nil, nil)
 
 	var s string
 
@@ -134,15 +167,15 @@ func concurrentProcess() {
 
 	waitGroup.Add(2)
 
-	go runProcess("P1", 20, &waitGroup, nil)
-	go runProcess("P2", 20, &waitGroup, nil)
+	go runProcess("P1", 20, &waitGroup, nil, nil)
+	go runProcess("P2", 20, &waitGroup, nil, nil)
 
 	waitGroup.Wait()
 }
 
 func simultaneousProcess() {
-	go runProcess("P1", 20, nil, nil)
-	go runProcess("P2", 20, nil, nil)
+	go runProcess("P1", 20, nil, nil, nil)
+	go runProcess("P2", 20, nil, nil, nil)
 
 	var s string
 
@@ -150,7 +183,7 @@ func simultaneousProcess() {
 	fmt.Scanln(&s)
 }
 
-func runProcess(name string, total int, waitGroup *sync.WaitGroup, chn *chan string) {
+func runProcess(name string, total int, waitGroup *sync.WaitGroup, chn *chan string, hasSemaphore *chan bool) {
 
 	if waitGroup != nil {
 		defer waitGroup.Done()
@@ -182,8 +215,8 @@ func runProcess(name string, total int, waitGroup *sync.WaitGroup, chn *chan str
 
 	}
 
-	if chn != nil {
-		*chn <- ""
+	if hasSemaphore != nil {
+		*hasSemaphore <- true
 	}
 
 }
