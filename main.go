@@ -292,7 +292,7 @@ func useMutexToPreventRaceCondition() {
 
 	var s string
 
-	// Obter os retorno da Goroutines
+	// Segurar o processo para que as rotinas acima executem, se pressionar qualquer tecla irá encerrar o programa
 	fmt.Scanln(&s)
 
 	fmt.Println("Final result: ", result)
