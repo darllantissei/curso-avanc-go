@@ -49,6 +49,134 @@ func main() {
 	// Semáforo
 	// semaphore()
 
+	// Pipeline pattern
+	// usingPipelinePattern()
+
+	// Fun IN
+	// useFunIN()
+
+	// Fun OUT
+	useFunOUT()
+
+}
+
+func useFunOUT() {
+
+	c := generateINTs(4, 10)
+
+	d1 := divide(c)
+	d2 := divide(c)
+
+	fmt.Println(<-d1)
+
+	fmt.Println(<-d2)
+
+}
+
+func generateINTs(numbers ...int) chan int {
+	channel := make(chan int)
+
+	go func() {
+		for _, n := range numbers {
+
+			channel <- n
+		}
+		close(channel)
+	}()
+
+	return channel
+}
+
+func useFunIN() {
+
+	X := funnel(generateMSG("hello go"), generateMSG("hello world"))
+
+	for i := 0; i < 10; i++ {
+		fmt.Println(<-X)
+	}
+
+	fmt.Println("Finished...")
+}
+
+func funnel(channel1, channel2 <-chan string) <-chan string {
+
+	channel := make(chan string)
+
+	go func() {
+
+		for {
+			channel <- <-channel1
+		}
+	}()
+
+	go func() {
+		for {
+			channel <- <-channel2
+		}
+	}()
+
+	return channel
+}
+
+func generateMSG(s string) <-chan string {
+	channel := make(chan string)
+
+	go func() {
+		for i := 0; ; i++ {
+
+			channel <- fmt.Sprintf("String: %s - Value: %d", s, i)
+
+			time.Sleep(time.Duration(rand.Intn(255)) * time.Millisecond)
+		}
+	}()
+
+	return channel
+}
+
+func usingPipelinePattern() {
+
+	numbers := generate(2, 4, 6)
+
+	result := divide(numbers)
+
+	fmt.Println(<-result)
+
+	fmt.Println(<-result)
+
+	fmt.Println(<-result)
+}
+
+func divide(input chan int) chan int {
+
+	channel := make(chan int)
+
+	go func() {
+		for number := range input {
+			channel <- number / 2
+		}
+
+		close(channel)
+	}()
+
+	return channel
+}
+
+func generate(numbers ...int) chan int {
+
+	channel := make(chan int)
+
+	go func() {
+
+		for _, number := range numbers {
+
+			channel <- number
+
+		}
+
+	}()
+
+	return channel
+
 }
 
 func semaphore() {
