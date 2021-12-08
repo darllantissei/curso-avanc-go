@@ -24,7 +24,7 @@ var mtx sync.Mutex
 
 func main() {
 	// Processo simultâneos
-	simultaneousProcess()
+	// simultaneousProcess()
 
 	// -----------------------------------------
 
