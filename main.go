@@ -46,17 +46,25 @@ func main() {
 	// Channel with waitgroup
 	// useChannelsWithWaitGroup()
 
+	// -----------------------------------------
+
 	// Semáforo
 	// semaphore()
+
+	// -----------------------------------------
 
 	// Pipeline pattern
 	// usingPipelinePattern()
 
+	// -----------------------------------------
+
 	// Fun IN
 	// useFunIN()
 
+	// -----------------------------------------
+
 	// Fun OUT
-	useFunOUT()
+	// useFunOUT()
 
 }
 
