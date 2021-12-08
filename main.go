@@ -24,7 +24,7 @@ var mtx sync.Mutex
 
 func main() {
 	// Processo simultâneos
-	// simultaneousProcess()
+	simultaneousProcess()
 
 	// -----------------------------------------
 
@@ -315,7 +315,7 @@ func simultaneousProcess() {
 
 	var s string
 
-	// Obter os retorno da Goroutines
+	// Segurar o processo para que as rotinas acima executem, se pressionar qualquer tecla irá encerrar o programa
 	fmt.Scanln(&s)
 }
 
