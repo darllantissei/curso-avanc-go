@@ -31,7 +31,7 @@ const (
 	queryParam         = "query_param.sql"
 )
 
-func checkeParametersInProductionAndSandboxWithParallelism() {
+func checkParametersInProductionAndSandboxWithParallelism() {
 
 	start := time.Now()
 
