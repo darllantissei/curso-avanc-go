@@ -23,6 +23,16 @@ var result int
 var mtx sync.Mutex
 
 func main() {
+
+	// Concurrency with parallelism
+	checkeParametersInProductionAndSandboxWithParallelism()
+
+	// Downloads Flow
+	// DownloadFlow()
+
+	// Simular stress de requests
+	// SeveralRequestsStress()
+
 	// Processo simultâneos
 	// simultaneousProcess()
 
